@@ -12,6 +12,9 @@ import {
   ListItem,
   Icon,
 } from "react-native-elements";
+import Doacoes from "./Doacoes";
+import Entregas from "./Entregas";
+import Estoque from "./Estoque";
 
 export default function Home({ navigation }) {
   const [index, setIndex] = useState(0);
@@ -76,7 +79,7 @@ export default function Home({ navigation }) {
           text: "LogSolidario",
           style: { color: "#fff", fontSize: 20 },
         }}
-        rightComponent={{ icon: "logout", color: "#fff" }}
+        rightComponent={{ icon: "logout", color: "#fff", onPress:()=>navigation.navigate('Login')}}
       />
       <View style={styles.content}>
         <Tab
@@ -106,33 +109,14 @@ export default function Home({ navigation }) {
         </Tab>
 
         <TabView value={index} onChange={setIndex} animationType="spring">
-          <TabView.Item style={{ backgroundColor: "red", width: "100%" }}>
-            {/* Colocar aqui a screen de listagem de doação */}
-            <View>
-                <Text h1>Doacoes</Text>
-            
-            <ScrollView>
-            {
-                list.map((l, i) => (
-                    <ListItem key={i} bottomDivider>
-                        <ListItem.Content>
-                            <ListItem.Title>{l.name}</ListItem.Title>
-                            <ListItem.Subtitle>{l.subtitle}</ListItem.Subtitle>
-                        </ListItem.Content>
-                            <ListItem.Chevron color="black" />
-                    </ListItem>
-                ))
-            }
-            </ScrollView>
-            </View>
+          <TabView.Item style={{width: "100%" }}>
+            <Doacoes></Doacoes>
           </TabView.Item>
-          <TabView.Item style={{ backgroundColor: "blue", width: "100%" }}>
-            {/* Colocar aqui a screen de listagem de entregas */}
-            <Text h1>Entregas</Text>
+          <TabView.Item style={{width: "100%" }}>
+            <Entregas></Entregas>
           </TabView.Item>
           <TabView.Item style={{ backgroundColor: "green", width: "100%" }}>
-            {/* Colocar aqui a screen de estoque */}
-            <Text h1>Estoque</Text>
+            <Estoque></Estoque>
           </TabView.Item>
         </TabView>
 
@@ -149,13 +133,13 @@ export default function Home({ navigation }) {
           <SpeedDial.Action
             icon={{ name: "add", color: "#fff" }}
             title="Nova entrega"
-            onPress={() => console.log("Direciona para a tela de nova Entrega")}
+            onPress={() => navigation.navigate("NovaEntrega")}
             buttonStyle={{ backgroundColor: "#1e90ff" }}
           />
           <SpeedDial.Action
             icon={{ name: "add", color: "#fff" }}
             title="Nova Doação"
-            onPress={() => console.log("Direciona para a tela de nova doação")}
+            onPress={() => navigation.navigate("NovaDoacao")}
             buttonStyle={{ backgroundColor: "#1e90ff" }}
           />
         </SpeedDial>

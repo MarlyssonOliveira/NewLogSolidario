@@ -10,7 +10,7 @@ export default function Cadastro({ navigation }) {
   return (
     <View style={styles.content}>
       <View style={styles.title}>
-        <FAB icon={{ name: "angle-left", type:'font-awesome', color: "#000"}} style={styles.backButton} buttonStyle={{backgroundColor:'#1e90ff'}} size= 'small' />
+        <FAB icon={{ name: "angle-left", type:'font-awesome', color: "#000"}} onPress={()=>navigation.goBack()} style={styles.backButton} buttonStyle={{backgroundColor:'#1e90ff'}} size= 'small' />
         <Text h2>
           Cadastro
         </Text>
