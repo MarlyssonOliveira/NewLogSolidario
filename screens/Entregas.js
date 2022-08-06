@@ -1,8 +1,15 @@
 import React from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Text, ListItem } from "react-native-elements";
+import { useNavigation } from '@react-navigation/native';
 
-export default function Entregas({ navigation }) {
+export default function Entregas() {
+  const navigation = useNavigation(); 
+
+  const pressDetalhe = () => {
+    navigation.navigate("DetalhesEntrega")
+  }
+  
   let list = [
     {
       name: "Entrega 01",
@@ -72,7 +79,7 @@ export default function Entregas({ navigation }) {
         <View>
           <ScrollView>
             {list.map((l, i) => (
-              <ListItem key={i} bottomDivider>
+              <ListItem key={i} bottomDivider onPress={pressDetalhe}>
                 <ListItem.Content>
                   <ListItem.Title>{l.name}</ListItem.Title>
                   <ListItem.Subtitle>Data {l.data} - {l.Destino}</ListItem.Subtitle>

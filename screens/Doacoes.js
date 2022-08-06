@@ -1,8 +1,15 @@
 import React from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Text, ListItem } from "react-native-elements";
+import { useNavigation } from '@react-navigation/native';
 
-export default function Doacoes({ navigation }) {
+export default function Doacoes() {
+  const navigation = useNavigation(); 
+
+  const pressDetalhe = () => {
+    navigation.navigate("DetalhesDoacao")
+  }
+
   let list = [
     {
       name: "Doação 01",
@@ -72,7 +79,7 @@ export default function Doacoes({ navigation }) {
         <View>
           <ScrollView>
             {list.map((l, i) => (
-              <ListItem key={i} bottomDivider>
+              <ListItem key={i}  onPress={pressDetalhe} bottomDivider>
                 <ListItem.Content>
                   <ListItem.Title>{l.name}</ListItem.Title>
                   <ListItem.Subtitle>Data {l.data} - {l.totalItens} Itens doados</ListItem.Subtitle>

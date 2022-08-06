@@ -132,7 +132,7 @@ export default function Home({ navigation }) {
         >
           <SpeedDial.Action
             icon={{ name: "add", color: "#fff" }}
-            title="Nova entrega"
+            title="Nova Entrega"
             onPress={() => navigation.navigate("NovaEntrega")}
             buttonStyle={{ backgroundColor: "#1e90ff" }}
           />

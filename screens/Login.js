@@ -26,7 +26,6 @@ export default function Login({ navigation }) {
           rounded
           icon={{ name: "user", type: "font-awesome", color: "#000" }}
           iconStyle={styles.icon}
-          onPress={() => console.log("Works!")}
         />
         <Text>Faça login para continuar</Text>
       </View>
