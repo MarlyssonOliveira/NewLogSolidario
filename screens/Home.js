@@ -15,62 +15,75 @@ import {
 import Doacoes from "./Doacoes";
 import Entregas from "./Entregas";
 import Estoque from "./Estoque";
+import { getAuth, signOut } from "firebase/auth";
 
 export default function Home({ navigation }) {
   const [index, setIndex] = useState(0);
   const [open, setOpen] = useState(false);
 
+  const auth = getAuth();
+  function deslogar() {
+    signOut(auth)
+      .then(() => {
+        // Sign-out successful.
+        navigation.navigate("Login");
+        //Limpa o id na sessão
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
   let list = [
     {
-        name: 'AAAAAAA',
-        subtitle: 'Vice President'
+      name: "AAAAAAA",
+      subtitle: "Vice President",
     },
     {
-        name: 'Chris Jackson',
-        subtitle: 'Vice Chairman'
+      name: "Chris Jackson",
+      subtitle: "Vice Chairman",
     },
     {
-        name: 'Chris Jackson',
-        subtitle: 'Vice Chairman'
+      name: "Chris Jackson",
+      subtitle: "Vice Chairman",
     },
     {
-        name: 'Chris Jackson',
-        subtitle: 'Vice Chairman'
+      name: "Chris Jackson",
+      subtitle: "Vice Chairman",
     },
     {
-        name: 'Chris Jackson',
-        subtitle: 'Vice Chairman'
+      name: "Chris Jackson",
+      subtitle: "Vice Chairman",
     },
     {
-        name: 'Chris Jackson',
-        subtitle: 'Vice Chairman'
+      name: "Chris Jackson",
+      subtitle: "Vice Chairman",
     },
     {
-        name: 'Chris Jackson',
-        subtitle: 'Vice Chairman'
-    }
-    ,
-    {
-        name: 'Chris Jackson',
-        subtitle: 'Vice Chairman'
+      name: "Chris Jackson",
+      subtitle: "Vice Chairman",
     },
     {
-        name: 'Chris Jackson',
-        subtitle: 'Vice Chairman'
+      name: "Chris Jackson",
+      subtitle: "Vice Chairman",
     },
     {
-        name: 'Chris Jackson',
-        subtitle: 'Vice Chairman'
+      name: "Chris Jackson",
+      subtitle: "Vice Chairman",
     },
     {
-        name: 'Chris Jackson',
-        subtitle: 'Vice Chairman'
+      name: "Chris Jackson",
+      subtitle: "Vice Chairman",
     },
     {
-        name: 'Chris Jackson',
-        subtitle: 'Vice Chairman'
-    }
-]
+      name: "Chris Jackson",
+      subtitle: "Vice Chairman",
+    },
+    {
+      name: "Chris Jackson",
+      subtitle: "Vice Chairman",
+    },
+  ];
 
   return (
     <>
@@ -79,7 +92,11 @@ export default function Home({ navigation }) {
           text: "LogSolidario",
           style: { color: "#fff", fontSize: 20 },
         }}
-        rightComponent={{ icon: "logout", color: "#fff", onPress:()=>navigation.navigate('Login')}}
+        rightComponent={{
+          icon: "logout",
+          color: "#fff",
+          onPress: () => deslogar(),
+        }}
       />
       <View style={styles.content}>
         <Tab
@@ -109,49 +126,48 @@ export default function Home({ navigation }) {
         </Tab>
 
         <TabView value={index} onChange={setIndex} animationType="spring">
-          <TabView.Item style={{width: "100%" }}>
+          <TabView.Item style={{ width: "100%" }}>
             <Doacoes></Doacoes>
           </TabView.Item>
-          <TabView.Item style={{width: "100%" }}>
+          <TabView.Item style={{ width: "100%" }}>
             <Entregas></Entregas>
           </TabView.Item>
           <TabView.Item style={{ backgroundColor: "green", width: "100%" }}>
             <Estoque></Estoque>
           </TabView.Item>
         </TabView>
-
       </View>
-        <SpeedDial
-          isOpen={open}
+      <SpeedDial
+        isOpen={open}
+        icon={{ name: "add", color: "#fff" }}
+        openIcon={{ name: "close", color: "#fff" }}
+        onOpen={() => setOpen(true)}
+        onClose={() => setOpen(false)}
+        buttonStyle={{ backgroundColor: "#1e90ff" }}
+        size={"large"}
+      >
+        <SpeedDial.Action
           icon={{ name: "add", color: "#fff" }}
-          openIcon={{ name: "close", color: "#fff" }}
-          onOpen={() => setOpen(true)}
-          onClose={() => setOpen(false)}
+          title="Nova Entrega"
+          onPress={() => navigation.navigate("NovaEntrega")}
           buttonStyle={{ backgroundColor: "#1e90ff" }}
-          size={'large'}
-        >
-          <SpeedDial.Action
-            icon={{ name: "add", color: "#fff" }}
-            title="Nova Entrega"
-            onPress={() => navigation.navigate("NovaEntrega")}
-            buttonStyle={{ backgroundColor: "#1e90ff" }}
-          />
-          <SpeedDial.Action
-            icon={{ name: "add", color: "#fff" }}
-            title="Nova Doação"
-            onPress={() => navigation.navigate("NovaDoacao")}
-            buttonStyle={{ backgroundColor: "#1e90ff" }}
-          />
-        </SpeedDial>
+        />
+        <SpeedDial.Action
+          icon={{ name: "add", color: "#fff" }}
+          title="Nova Doação"
+          onPress={() => navigation.navigate("NovaDoacao")}
+          buttonStyle={{ backgroundColor: "#1e90ff" }}
+        />
+      </SpeedDial>
     </>
   );
 }
 
 const styles = StyleSheet.create({
   content: {
-    height:'100%'
+    height: "100%",
   },
   actionButton: {
-    position:"absolute",
-  }
+    position: "absolute",
+  },
 });

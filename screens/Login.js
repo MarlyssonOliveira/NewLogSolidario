@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { Button, Input, Text, FAB, Avatar } from "react-native-elements";
+import { initializeApp } from "firebase/app";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 export default function Login({ navigation }) {
   const pressCadastrar = () => {
@@ -8,8 +10,38 @@ export default function Login({ navigation }) {
   };
 
   const pressLogar = () => {
-    navigation.navigate("Home");
+    Login();
   };
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyD6DuE49jwQLldV2riqNTDPsFCcJKwHzw8",
+    authDomain: "logsolidario.firebaseapp.com",
+    projectId: "logsolidario",
+    storageBucket: "logsolidario.appspot.com",
+    messagingSenderId: "793662551051",
+    appId: "1:793662551051:web:1564fe2ec432e9e219c30e",
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+
+  const [getSenha, setSenha] = useState();
+  const [getEmail, setEmail] = useState();
+
+  function Login() {
+    const auth = getAuth();
+    signInWithEmailAndPassword(auth, getEmail, getSenha)
+      .then((userCredential) => {
+        // Signed in
+        const user = userCredential.user;
+        navigation.navigate("Home");
+        // buscar usuario por email e salvar id do usuario em sessão
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+      });
+  }
   return (
     <View style={styles.content}>
       <View
@@ -30,8 +62,8 @@ export default function Login({ navigation }) {
         <Text>Faça login para continuar</Text>
       </View>
       <View style={styles.inputs}>
-        <Input placeholder="Email" label={"Email"} />
-        <Input placeholder="Senha" label={"Senha"} secureTextEntry={true} />
+        <Input placeholder="Email" label={"Email"} onChangeText={(text) => setEmail(text)}/>
+        <Input placeholder="Senha" label={"Senha"} secureTextEntry={true} onChangeText={(text) => setSenha(text)}/>
       </View>
       <View style={styles.buttons}>
         <Button title="Login" onPress={pressLogar} />
