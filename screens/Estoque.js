@@ -1,6 +1,7 @@
 import React from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Text, ListItem } from "react-native-elements";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Estoque({ navigation }) {
   let list = [

@@ -3,6 +3,7 @@ import { StyleSheet, View } from "react-native";
 import { Button, Input, Text, FAB } from "react-native-elements";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { initializeApp } from "firebase/app";
+import axios from "axios";
 
 export default function Cadastro({ navigation }) {
   const pressCadastrar = () => {
@@ -27,21 +28,38 @@ export default function Cadastro({ navigation }) {
   const auth = getAuth();
 
   function cadastrarUsuario() {
-    createUserWithEmailAndPassword(auth, getEmail, getSenha)
+     createUserWithEmailAndPassword(auth, getEmail, getSenha)
       .then((userCredential) => {
-        // Signed in
         const user = userCredential.user;
-        // cadastra o usuario no banco
-        //{Inserir codigo aqui}
-        //direciona pro login
-        navigation.navigate("Login");
+        // Cadastra o Usuario no banco e em caso de sucesso direciona pro login
+        // Adicionar toasters para informar o usuario
+        CadastrarUsuarioBD()
+        
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
-        // ..
       });
   }
+
+  function CadastrarUsuarioBD() {
+        
+    axios.post('http://192.168.0.115:8080/usuario', {
+        nome: getNome,
+        email: getEmail,
+        cpf: getCPF
+      })
+      .then(function (response) {
+        console.log(response.config.data);
+        console.log('Usuario cadastrado com sucesso na base de dados.')
+        navigation.navigate("Login");
+      })
+      .catch(function (error) {
+        console.log(error);
+        console.log('Usuario não cadastrado')
+      });     
+    
+}
   return (
     <View style={styles.content}>
       <View style={styles.title}>

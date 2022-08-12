@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import {
   Button,
@@ -16,16 +16,40 @@ import Doacoes from "./Doacoes";
 import Entregas from "./Entregas";
 import Estoque from "./Estoque";
 import { getAuth, signOut } from "firebase/auth";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Home({ navigation }) {
   const [index, setIndex] = useState(0);
   const [open, setOpen] = useState(false);
 
   const auth = getAuth();
+
+  
+  const getSessao = async () => {
+    try {
+      const value = await AsyncStorage.getItem('@session_key')
+      if(value !== null) {
+        console.log("O valor da sessao é: " + value)
+      }
+    } catch(e) {
+      // error reading value
+    }
+  }
+
+  const deletaSessao = async () => {
+    try {
+      await AsyncStorage.removeItem('@session_key')
+    } catch(e) {
+      // remove error
+    }
+  
+  }
+
   function deslogar() {
     signOut(auth)
       .then(() => {
         // Sign-out successful.
+        deletaSessao();
         navigation.navigate("Login");
         //Limpa o id na sessão
       })
@@ -34,56 +58,10 @@ export default function Home({ navigation }) {
       });
   }
 
-  let list = [
-    {
-      name: "AAAAAAA",
-      subtitle: "Vice President",
-    },
-    {
-      name: "Chris Jackson",
-      subtitle: "Vice Chairman",
-    },
-    {
-      name: "Chris Jackson",
-      subtitle: "Vice Chairman",
-    },
-    {
-      name: "Chris Jackson",
-      subtitle: "Vice Chairman",
-    },
-    {
-      name: "Chris Jackson",
-      subtitle: "Vice Chairman",
-    },
-    {
-      name: "Chris Jackson",
-      subtitle: "Vice Chairman",
-    },
-    {
-      name: "Chris Jackson",
-      subtitle: "Vice Chairman",
-    },
-    {
-      name: "Chris Jackson",
-      subtitle: "Vice Chairman",
-    },
-    {
-      name: "Chris Jackson",
-      subtitle: "Vice Chairman",
-    },
-    {
-      name: "Chris Jackson",
-      subtitle: "Vice Chairman",
-    },
-    {
-      name: "Chris Jackson",
-      subtitle: "Vice Chairman",
-    },
-    {
-      name: "Chris Jackson",
-      subtitle: "Vice Chairman",
-    },
-  ];
+  useEffect(()=>{
+    getSessao()
+  })
+
 
   return (
     <>

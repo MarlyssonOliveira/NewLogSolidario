@@ -3,6 +3,9 @@ import { StyleSheet, View } from "react-native";
 import { Button, Input, Text, FAB, Avatar } from "react-native-elements";
 import { initializeApp } from "firebase/app";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import axios from "axios";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 export default function Login({ navigation }) {
   const pressCadastrar = () => {
@@ -34,14 +37,55 @@ export default function Login({ navigation }) {
       .then((userCredential) => {
         // Signed in
         const user = userCredential.user;
-        navigation.navigate("Home");
+
         // buscar usuario por email e salvar id do usuario em sessão
+        CriaSessaoUsuarioEmail();
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
       });
   }
+
+  const setSessao = async (value) => {
+    try {
+      await AsyncStorage.setItem('@session_key', value)
+    } catch (e) {
+      // tratamento de erro
+    }
+  }
+ 
+
+
+  const getSessao = async () => {
+    try {
+      const value = await AsyncStorage.getItem('@session_key')
+      if(value !== null) {
+        console.log("O valor da sessao é: " + value)
+      }
+    } catch(e) {
+      // error reading value
+    }
+  }
+
+  function CriaSessaoUsuarioEmail(){
+      axios.get('http://192.168.0.115:8080/usuario/buscaPorEmail', { params: { email: getEmail } })
+        .then(function (response) {
+          console.log(response.data);
+          console.log('Usuario Logado com sucesso.')
+          
+          setSessao(response.data.id)
+          getSessao()
+          navigation.navigate("Home");
+        })
+        .catch(function (error) {
+          console.log(error);
+          console.log('Falha ao realizar a busca de usuario para registro em sessão')
+        });     
+      
+  }
+
+
   return (
     <View style={styles.content}>
       <View

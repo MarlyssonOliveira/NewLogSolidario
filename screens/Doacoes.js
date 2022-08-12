@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Text, ListItem } from "react-native-elements";
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from "axios";
 
 export default function Doacoes() {
   const navigation = useNavigation(); 
@@ -9,80 +11,45 @@ export default function Doacoes() {
   const pressDetalhe = () => {
     navigation.navigate("DetalhesDoacao")
   }
+  const [getDoacoes, setDoacoes] = useState([]);
 
-  let list = [
-    {
-      name: "Doação 01",
-      data: "18/05/2000",
-      totalItens: "182",
-    },
-    {
-      name: "Doação 02",
-      data: "18/05/2000",
-      totalItens: "182",
-    },
-    {
-      name: "Doação 03",
-      data: "18/05/2000",
-      totalItens: "182",
-    },
-    {
-      name: "Doação 04",
-      data: "18/05/2000",
-      totalItens: "182",
-    },
-    {
-      name: "Doação 05",
-      data: "18/05/2000",
-      totalItens: "182",
-    },
-    {
-      name: "Doação 06",
-      data: "18/05/2000",
-      totalItens: "182",
-    },
-    {
-      name: "Doação 07",
-      data: "18/05/2000",
-      totalItens: "182",
-    },
-    {
-      name: "Doação 08",
-      data: "18/05/2000",
-      totalItens: "182",
-    },
-    {
-      name: "Doação 09",
-      data: "18/05/2000",
-      totalItens: "182",
-    },
-    {
-      name: "Doação 10",
-      data: "18/05/2000",
-      totalItens: "182",
-    },
-    {
-      name: "Doação 11",
-      data: "18/05/2000",
-      totalItens: "182",
-    },
-    {
-      name: "Doação 12",
-      data: "18/05/2000",
-      totalItens: "182",
-    },
-  ];
+  const sessionId = async () => {
+    try {
+      return await AsyncStorage.getItem('@session_key')
+    } catch(e) {
+      // error reading value
+    }
+  }
+
+  function consultarDadosDoacoes(){
+
+    axios.get('http://192.168.0.115:8080/doacao?', { params: { usuarioId: 4 } })
+    .then(function (response) {
+      console.log(response.data)
+        setDoacoes(response.data);
+    }).catch(function (error) {
+        console.log(error);
+    
+    });
+}
+
+  useState(()=>{
+    //chamada da função que synca os dados
+    consultarDadosDoacoes()
+  },[getDoacoes])
+
+
 
   return (
     <>
       <View style={styles.content}>
         <View>
           <ScrollView>
-            {list.map((l, i) => (
+            {getDoacoes.map((l, i) => (
               <ListItem key={i}  onPress={pressDetalhe} bottomDivider>
                 <ListItem.Content>
-                  <ListItem.Title>{l.name}</ListItem.Title>
-                  <ListItem.Subtitle>Data {l.data} - {l.totalItens} Itens doados</ListItem.Subtitle>
+                  <ListItem.Title>{l.nomeDoador}</ListItem.Title>
+                  <ListItem.Subtitle>Data {l.data} - {l.totalDeItens} Itens doados</ListItem.Subtitle>
                 </ListItem.Content>
                 <ListItem.Chevron color="black" />
               </ListItem>
