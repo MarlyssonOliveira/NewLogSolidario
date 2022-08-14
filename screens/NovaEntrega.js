@@ -19,6 +19,7 @@ export default function NovaEntrega({ navigation }) {
   const [getEstoque, setEstoque] = useState([]);
   const [getNomeItem, setNomeItem] = useState();
   const [getQuantidadeItem, setQuantidadeItem] = useState();
+  const [getQuantidadeFiltro, setQuantidadeFiltro] = useState();
   const [getCEPB, setCEPB] = useState();
   const [getNumeroB, setNumeroB] = useState();
   const [getTelefoneB, setTelefoneB] = useState();
@@ -99,6 +100,31 @@ export default function NovaEntrega({ navigation }) {
     carregaItensEstoque()
   },[])
 
+  function salvaItemEQuantidadeFiltro(nomeItem){
+    const item = getEstoque.find((item) => item.nome == nomeItem)
+    if(item != undefined){
+      console.log(item.quantidade)
+      setQuantidadeFiltro(item.quantidade)
+      setNomeItem(nomeItem)
+    }
+  }
+
+  function trataQuantidadeFiltro(valor){
+    const valorFiltro = getQuantidadeFiltro;
+    console.log(valorFiltro)
+    if(valorFiltro < valor){
+      quantidade.current.setNativeProps({ value: valorFiltro });
+      valor = valorFiltro
+      setQuantidadeItem(valor)
+    }else if(valor == 0){
+      quantidade.current.setNativeProps({ value: 1 });
+      valor = 1;
+      setQuantidadeItem(valor)
+    }else{
+      setQuantidadeItem(valor)
+    }
+  }
+
   const [visible, setVisible] = useState(false);
 
   return (
@@ -134,7 +160,7 @@ export default function NovaEntrega({ navigation }) {
         <View style={styles.inputItens}>
         <RNPickerSelect
           ref={item}
-          onValueChange={(value) => setNomeItem(value)}
+          onValueChange={(value) => {salvaItemEQuantidadeFiltro(value)}}
           placeholder= {{ label: "Selecione um Item", value: ""}}
           items={
             getEstoque.map((l) => (
@@ -142,7 +168,7 @@ export default function NovaEntrega({ navigation }) {
             ))
           }
         />
-          <Input ref={quantidade} placeholder="Quantidade" keyboardType="numeric" label={"Quantidade"} onChangeText={(text) => setQuantidadeItem(text)}/>
+          <Input ref={quantidade} placeholder="Quantidade" keyboardType="numeric" label={"Quantidade"} onChangeText={(text) => trataQuantidadeFiltro(text)} onFocus={() => {quantidade.current.clear()}}/>
         </View>
         <View style={styles.AddItem}>
           <Button
