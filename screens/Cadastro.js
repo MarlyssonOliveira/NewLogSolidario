@@ -44,14 +44,12 @@ export default function Cadastro({ navigation }) {
 
   function CadastrarUsuarioBD() {
         
-    axios.post('http://192.168.0.115:8080/usuario', {
+    axios.post('http://192.168.0.106:8080/usuario', {
         nome: getNome,
         email: getEmail,
         cpf: getCPF
       })
       .then(function (response) {
-        console.log(response.config.data);
-        console.log('Usuario cadastrado com sucesso na base de dados.')
         navigation.navigate("Login");
       })
       .catch(function (error) {

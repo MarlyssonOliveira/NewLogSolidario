@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import {
   Button,
@@ -9,62 +9,60 @@ import {
   Overlay,
 } from "react-native-elements";
 import RNPickerSelect from "react-native-picker-select";
+import axios from "axios";
 
-export default function DetalhesDoacao({ navigation }) {
-  let list = [
-    {
-      name: "Sabão",
-      quantidade: "10",
-    },
-    {
-      name: "Feijao",
-      quantidade: "10",
-    },
-    {
-      name: "Arroz",
-      quantidade: "10",
-    },
-    {
-      name: "Sabão",
-      quantidade: "10",
-    },
-    {
-      name: "Feijao",
-      quantidade: "10",
-    },
-    {
-      name: "Arroz",
-      quantidade: "10",
-    },
-    {
-      name: "Sabão",
-      quantidade: "10",
-    },
-    {
-      name: "Feijao",
-      quantidade: "10",
-    },
-    {
-      name: "Arroz",
-      quantidade: "10",
-    },
-    {
-      name: "Sabão",
-      quantidade: "10",
-    },
-    {
-      name: "Feijao",
-      quantidade: "10",
-    },
-    {
-      name: "Arroz",
-      quantidade: "10",
-    },
-  ];
+
+export default function DetalhesEntrega({ navigation, route }) {
+  const [getEntrega,setEntrega] = useState([])
+  const [getBeneficiario,setBeneficiario] = useState()
+  const [listItens, setListItens] = useState([])
+  const [dataFormatada, setdataFormatada] = useState()
+  const [getStatus, setStatus] = useState()
 
   const toggleOverlay = () => {
     setVisible(!visible);
   };
+
+  function consultaEntrega(){
+    axios.get('http://192.168.0.106:8080/entrega/buscar', { params: { entregaId: route.params.idEntrega } })
+    .then(function (response) {
+      setEntrega(response.data);
+      setBeneficiario(response.data.beneficiarios[0].nome)
+      setListItens(response.data.itens)      
+      setdataFormatada(formataData(response.data.data))
+    })
+    .catch(function (error) {
+      console.log(error);
+      console.log('Falha ao realizar a busca de usuario para registro em sessão')
+    }); 
+  }
+
+  function alterarEntrega(){
+    console.log(route.params.idEntrega)
+    console.log(getStatus)
+    axios.post('http://192.168.0.106:8080/entrega/alterar',{},{ params: { entregaID: route.params.idEntrega,status:getStatus} })
+    .then(function (response) {
+      toggleOverlay()
+      consultaEntrega()
+    })
+    .catch(function (error) {
+      console.log(error);
+      console.log('Falha ao realizar a busca de usuario para registro em sessão')
+    }); 
+  }
+
+  function formataData(data){
+    let ano = data[0]
+    let dia = data[2]
+    let mes = data[1].length > 1 ? data[1] : "0" + data[1]
+    const novaData = dia+"/"+mes+"/"+ano
+    return novaData;
+  }
+
+  useEffect(() =>{
+    consultaEntrega()
+  },[])
+
 
   const [visible, setVisible] = useState(false);
   return (
@@ -81,16 +79,16 @@ export default function DetalhesDoacao({ navigation }) {
       </View>
       <View>
         <Text style={styles.mainText}>
-          Codigo - <Text>01</Text>
+          Codigo - <Text>{getEntrega.id}</Text>
         </Text>
         <Text style={styles.mainText}>
-          Beneficiario - <Text>Associação tal tal</Text>
+           Beneficiario - <Text>{getBeneficiario}</Text>  
         </Text>
         <Text style={styles.mainText}>
-          Data - <Text>18/05/2022</Text>
+          Data - <Text>{dataFormatada}</Text>
         </Text>
         <Text style={styles.mainText}>
-          Status - <Text style={styles.statusText}>Em andamento</Text>
+          Status - <Text style={{color: getEntrega.status == "CONCLUIDA"? "#0F0":"#aa0", fontWeight:"bold"}}>{getEntrega.status}</Text>
         </Text>
       </View>
 
@@ -99,6 +97,7 @@ export default function DetalhesDoacao({ navigation }) {
           title="Alterar Status"
           color="#1e90ff"
           buttonStyle={{ backgroundColor: "#cc0", borderRadius: 50 }}
+          onPress={toggleOverlay}
         />
       </View>
 
@@ -107,10 +106,10 @@ export default function DetalhesDoacao({ navigation }) {
           Itens da Entrega
         </Text>
         <ScrollView>
-          {list.map((l, i) => (
-            <ListItem key={i} bottomDivider>
+          {listItens.map((l) => (
+            <ListItem key={l.id} bottomDivider>
               <ListItem.Content>
-                <ListItem.Title>{l.name}</ListItem.Title>
+                <ListItem.Title>{l.nome}</ListItem.Title>
                 <ListItem.Subtitle>
                   Quantidade: {l.quantidade}
                 </ListItem.Subtitle>
@@ -118,28 +117,22 @@ export default function DetalhesDoacao({ navigation }) {
             </ListItem>
           ))}
         </ScrollView>
-        <View>
-          <Text style={styles.footerText}>
-            Total de Itens - <Text style={styles.subText}>68</Text>
-          </Text>
-        </View>
       </View>
       <Overlay isVisible={visible} onBackdropPress={toggleOverlay}>
         <View style={styles.overlayTitle}>
           <Text h4>Aletração de Status</Text>
 
           <RNPickerSelect
-            onValueChange={(value) => console.log(value)}
-            placeholder={{ label: "Selecione um Status", value: null }}
+            onValueChange={(value) => setStatus(value)}
+            placeholder={{ label: "Selecione um Status", value: "" }}
             items={[
-              { label: "Concluido", value: "Concluido" },
-              { label: "Em transporte", value: "transporte" },
-              { label: "Em separação", value: "separação" },
+              { label: "Concluido", value: "CONCLUIDA" },
+              { label: "Em andamento", value: "ANDAMENTO" },
             ]}
           />
         </View>
         <View style={styles.buttons}>
-          <Button title="Alterar" color="#1e90ff" />
+          <Button title="Alterar" color="#1e90ff" onPress={()=>alterarEntrega()}/>
         </View>
       </Overlay>
     </View>
@@ -193,7 +186,6 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontWeight: "bold",
-    color: "#aa0",
     fontStyle: "italic",
   },
   overlayTitle: {

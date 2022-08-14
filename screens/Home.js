@@ -16,7 +16,6 @@ import Doacoes from "./Doacoes";
 import Entregas from "./Entregas";
 import Estoque from "./Estoque";
 import { getAuth, signOut } from "firebase/auth";
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Home({ navigation }) {
   const [index, setIndex] = useState(0);
@@ -24,32 +23,12 @@ export default function Home({ navigation }) {
 
   const auth = getAuth();
 
-  
-  const getSessao = async () => {
-    try {
-      const value = await AsyncStorage.getItem('@session_key')
-      if(value !== null) {
-        console.log("O valor da sessao é: " + value)
-      }
-    } catch(e) {
-      // error reading value
-    }
-  }
-
-  const deletaSessao = async () => {
-    try {
-      await AsyncStorage.removeItem('@session_key')
-    } catch(e) {
-      // remove error
-    }
-  
-  }
-
   function deslogar() {
     signOut(auth)
       .then(() => {
-        // Sign-out successful.
-        deletaSessao();
+        // Sign-out successful.[
+        global.sessionID = ""
+
         navigation.navigate("Login");
         //Limpa o id na sessão
       })
@@ -57,12 +36,6 @@ export default function Home({ navigation }) {
         console.log(error);
       });
   }
-
-  useEffect(()=>{
-    getSessao()
-  })
-
-
   return (
     <>
       <Header
@@ -110,7 +83,7 @@ export default function Home({ navigation }) {
           <TabView.Item style={{ width: "100%" }}>
             <Entregas></Entregas>
           </TabView.Item>
-          <TabView.Item style={{ backgroundColor: "green", width: "100%" }}>
+          <TabView.Item style={{ width: "100%" }}>
             <Estoque></Estoque>
           </TabView.Item>
         </TabView>
@@ -128,12 +101,14 @@ export default function Home({ navigation }) {
           icon={{ name: "add", color: "#fff" }}
           title="Nova Entrega"
           onPress={() => navigation.navigate("NovaEntrega")}
+          onPressOut={() => setOpen(false)}
           buttonStyle={{ backgroundColor: "#1e90ff" }}
         />
         <SpeedDial.Action
           icon={{ name: "add", color: "#fff" }}
           title="Nova Doação"
           onPress={() => navigation.navigate("NovaDoacao")}
+          onPressOut={() => setOpen(false)}
           buttonStyle={{ backgroundColor: "#1e90ff" }}
         />
       </SpeedDial>

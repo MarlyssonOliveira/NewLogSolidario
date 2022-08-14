@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import {
   Button,
@@ -12,59 +13,91 @@ import {
 import RNPickerSelect from "react-native-picker-select";
 
 export default function NovaEntrega({ navigation }) {
-  let list = [
-    {
-      name: "Sabão",
-      quantidade: "10",
-    },
-    {
-      name: "Feijao",
-      quantidade: "10",
-    },
-    {
-      name: "Arroz",
-      quantidade: "10",
-    },
-    {
-      name: "Sabão",
-      quantidade: "10",
-    },
-    {
-      name: "Feijao",
-      quantidade: "10",
-    },
-    {
-      name: "Arroz",
-      quantidade: "10",
-    },
-    {
-      name: "Sabão",
-      quantidade: "10",
-    },
-    {
-      name: "Feijao",
-      quantidade: "10",
-    },
-    {
-      name: "Arroz",
-      quantidade: "10",
-    },
-    {
-      name: "Sabão",
-      quantidade: "10",
-    },
-    {
-      name: "Feijao",
-      quantidade: "10",
-    },
-    {
-      name: "Arroz",
-      quantidade: "10",
-    },
-  ];
+  const [getBeneficiarioEntrega, setBeneficiarioEntrega] = useState();
+  const [getBeneficiariosEntrega, setBeneficiariosEntrega] = useState([]);
+  const [getBeneficiarios, setBeneficiarios] = useState([]);
+  const [getEstoque, setEstoque] = useState([]);
+  const [getNomeItem, setNomeItem] = useState();
+  const [getQuantidadeItem, setQuantidadeItem] = useState();
+  const [getCEPB, setCEPB] = useState();
+  const [getNumeroB, setNumeroB] = useState();
+  const [getTelefoneB, setTelefoneB] = useState();
+  const [getNomeB, setNomeB] = useState();
+  const [getEmailB, setEmailB] = useState();
+  const [getListaItens, setListaItens] = useState([]);
+  const item = React.createRef();
+  const quantidade = React.createRef();
+
+  const adicionaItem = () =>{
+    getListaItens.push({
+      "nome": getNomeItem,
+      "quantidade": getQuantidadeItem
+    });
+
+    setQuantidadeItem('')
+    quantidade.current.clear()
+    setNomeItem("")
+  }
+  function carregaBeneficiarios(){
+    axios.get('http://192.168.0.106:8080/beneficiario')
+    .then((response) => {
+      setBeneficiarios(response.data)
+    })
+    .catch(function (error) {
+      console.log('Erro ao listar beneficiarios')
+    });
+  }
+
+  const carregaItensEstoque = () => {
+    axios.get('http://192.168.0.106:8080/estoque/listar',{params: { usuarioId: global.sessionID }})
+    .then((response) => {
+      setEstoque(response.data)
+    })
+    .catch(function (error) {
+      console.log('Erro ao listar itens')
+    });
+
+  }
+
+  function atribuiBeneficiario(valor){
+    if(valor != ""){
+      getBeneficiariosEntrega.push({"id":valor})
+    }
+  }
+
+  const cadastraEntrega = () => {
+    const dataList = JSON.stringify({itens:getListaItens , beneficiarios: getBeneficiariosEntrega})
+    axios.post('http://192.168.0.106:8080/entrega/criar',dataList,{params: { usuarioId: global.sessionID }, headers:{'Content-Type': 'application/json'}})
+      .then(function (response) {
+        navigation.goBack();
+      })
+      .catch(function (error) {
+        console.log(error);
+        console.log('Entrega não cadastrada')
+      });
+  }
+
+  const cadastraBeneficiario = async () => {
+    const dataList = JSON.stringify({nome:getNomeB , telefone: getTelefoneB, email: getEmailB,cep:getCEPB,numero:getNumeroB})
+    axios.post('http://192.168.0.106:8080/beneficiario',dataList,{headers:{'Content-Type': 'application/json'}})
+      .then(function (response) {
+        carregaBeneficiarios()
+        toggleOverlay()
+      })
+      .catch(function (error) {
+        console.log(error);
+        console.log('Beneficiario não cadastrado')
+      });
+  }
+
   const toggleOverlay = () => {
     setVisible(!visible);
   };
+
+  useEffect(()=>{
+    carregaBeneficiarios()
+    carregaItensEstoque()
+  },[])
 
   const [visible, setVisible] = useState(false);
 
@@ -81,14 +114,14 @@ export default function NovaEntrega({ navigation }) {
         <Text h2>Nova Entrega</Text>
       </View>
       <View style={styles.inputs}>
-        <RNPickerSelect
-          onValueChange={(value) => console.log(value)}
-          placeholder= {{ label: "Selecione um Beneficiario", value: null }}
-          items={[
-            { label: "Football", value: "football" },
-            { label: "Baseball", value: "baseball" },
-            { label: "Hockey", value: "hockey" },
-          ]}
+         <RNPickerSelect
+          onValueChange={(value) => atribuiBeneficiario(value)}
+          placeholder= {{ label: "Selecione um Beneficiario", value: "" }}
+          items={
+            getBeneficiarios.map((l) => (
+            { label: l.nome, value: l.id }
+            ))
+          }
         />
         <View style={styles.AddBeneficiario}>
           <Button
@@ -100,30 +133,32 @@ export default function NovaEntrega({ navigation }) {
         </View>
         <View style={styles.inputItens}>
         <RNPickerSelect
-          onValueChange={(value) => console.log(value)}
-          placeholder= {{ label: "Selecione um Item", value: null }}
-          items={[
-            { label: "Sabao", value: "Sabao" },
-            { label: "Bolacha", value: "Bolacha" },
-            { label: "Biscoito", value: "Biscoito" },
-          ]}
+          ref={item}
+          onValueChange={(value) => setNomeItem(value)}
+          placeholder= {{ label: "Selecione um Item", value: ""}}
+          items={
+            getEstoque.map((l) => (
+            { label: l.nome, value: l.nome }
+            ))
+          }
         />
-          <Input placeholder="Quantidade" keyboardType="numeric" label={"Quantidade"} />
+          <Input ref={quantidade} placeholder="Quantidade" keyboardType="numeric" label={"Quantidade"} onChangeText={(text) => setQuantidadeItem(text)}/>
         </View>
         <View style={styles.AddItem}>
           <Button
             title="Adicionar Item"
             color="#1e90ff"
+            onPress={() => adicionaItem()}
             buttonStyle={{ backgroundColor: "#00ff00", borderRadius: 50 }}
           />
         </View>
       </View>
       <View style={styles.scrollItens}>
         <ScrollView>
-          {list.map((l, i) => (
+          {getListaItens.map((l, i) => (
             <ListItem key={i} bottomDivider>
               <ListItem.Content>
-                <ListItem.Title>{l.name}</ListItem.Title>
+                <ListItem.Title>{l.nome}</ListItem.Title>
                 <ListItem.Subtitle>
                   Quantidade: {l.quantidade}
                 </ListItem.Subtitle>
@@ -134,7 +169,7 @@ export default function NovaEntrega({ navigation }) {
       </View>
 
       <View style={styles.buttons}>
-        <Button title="Finalizar Doação" color="#1e90ff" />
+        <Button title="Finalizar Entrega" color="#1e90ff" onPress={() => cadastraEntrega()}/>
       </View>
       <Overlay
         isVisible={visible}
@@ -144,17 +179,19 @@ export default function NovaEntrega({ navigation }) {
           <Text h4>Novo Beneficiario</Text>
         </View>
         <View style={styles.inputs}>
-          <Input placeholder="Nome" label={"Nome"} />
+          <Input placeholder="Nome" label={"Nome"} onChangeText={(text) => setNomeB(text)}/>
 
-          <Input placeholder="Cep" label={"Cep"} />
+          <Input placeholder="Cep" label={"Cep"} onChangeText={(text) => setCEPB(text)}/>
 
-          <Input placeholder="Número" label={"Número"} />
+          <Input placeholder="Número" label={"Número"}  onChangeText={(text) => setNumeroB(text)} />
 
-          <Input placeholder="Telefone" label={"Telefone"} />
+          <Input placeholder="Email" label={"Email"}  onChangeText={(text) => setEmailB(text)} />
+
+          <Input placeholder="Telefone" label={"Telefone"} onChangeText={(text) => setTelefoneB(text)}/>
         </View>
 
         <View style={styles.buttons}>
-          <Button title="Cadastrar" color="#1e90ff" />
+          <Button title="Cadastrar" color="#1e90ff" onPress={() => cadastraBeneficiario()}/>
         </View>
       </Overlay>
     </View>

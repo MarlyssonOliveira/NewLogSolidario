@@ -4,7 +4,6 @@ import { Button, Input, Text, FAB, Avatar } from "react-native-elements";
 import { initializeApp } from "firebase/app";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import axios from "axios";
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 export default function Login({ navigation }) {
@@ -42,40 +41,14 @@ export default function Login({ navigation }) {
         CriaSessaoUsuarioEmail();
       })
       .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
+        console.log(error)
       });
   }
 
-  const setSessao = async (value) => {
-    try {
-      await AsyncStorage.setItem('@session_key', value)
-    } catch (e) {
-      // tratamento de erro
-    }
-  }
- 
-
-
-  const getSessao = async () => {
-    try {
-      const value = await AsyncStorage.getItem('@session_key')
-      if(value !== null) {
-        console.log("O valor da sessao é: " + value)
-      }
-    } catch(e) {
-      // error reading value
-    }
-  }
-
   function CriaSessaoUsuarioEmail(){
-      axios.get('http://192.168.0.115:8080/usuario/buscaPorEmail', { params: { email: getEmail } })
+      axios.get('http://192.168.0.106:8080/usuario/buscaPorEmail', { params: { email: getEmail } })
         .then(function (response) {
-          console.log(response.data);
-          console.log('Usuario Logado com sucesso.')
-          
-          setSessao(response.data.id)
-          getSessao()
+          global.sessionID = response.data.id
           navigation.navigate("Home");
         })
         .catch(function (error) {

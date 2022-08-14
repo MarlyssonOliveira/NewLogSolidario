@@ -1,59 +1,36 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Button, Input, Text, FAB, ListItem } from "react-native-elements";
+import axios from "axios";
 
-export default function DetalhesDoacao({ navigation }) {
-  let list = [
-    {
-      name: "Sabão",
-      quantidade: "10",
-    },
-    {
-      name: "Feijao",
-      quantidade: "10",
-    },
-    {
-      name: "Arroz",
-      quantidade: "10",
-    },
-    {
-      name: "Sabão",
-      quantidade: "10",
-    },
-    {
-      name: "Feijao",
-      quantidade: "10",
-    },
-    {
-      name: "Arroz",
-      quantidade: "10",
-    },
-    {
-      name: "Sabão",
-      quantidade: "10",
-    },
-    {
-      name: "Feijao",
-      quantidade: "10",
-    },
-    {
-      name: "Arroz",
-      quantidade: "10",
-    },
-    {
-      name: "Sabão",
-      quantidade: "10",
-    },
-    {
-      name: "Feijao",
-      quantidade: "10",
-    },
-    {
-      name: "Arroz",
-      quantidade: "10",
-    },
-  ];
+export default function DetalhesDoacao({ navigation, route }) {
+  const [getDoacao,setDoacao] = useState([])
+  const [listItens, setListItens] = useState([])
+  const [dataFormatada, setdataFormatada] = useState()
 
+  function consultadoacao(){
+    axios.get('http://192.168.0.106:8080/doacao/buscar', { params: { doacaoId: route.params.idDoacao } })
+    .then(function (response) {
+      setDoacao(response.data);
+      setListItens(response.data.itens)
+      setdataFormatada(formataData(response.data.data))
+    })
+    .catch(function (error) {
+      console.log(error);
+      console.log('Falha ao realizar a busca de usuario para registro em sessão')
+    }); 
+  }
+
+  function formataData(data){
+    let ano = data[0]
+    let dia = data[2]
+    let mes = data[1].length > 1 ? data[1] : "0" + data[1]
+    const novaData = dia+"/"+mes+"/"+ano
+    return novaData;
+  }
+  useEffect(() =>{
+    consultadoacao()
+  },[])
   return (
     <View style={styles.content}>
       <View style={styles.title}>
@@ -67,9 +44,9 @@ export default function DetalhesDoacao({ navigation }) {
         <Text h2>Doação</Text>
       </View>
       <View>
-        <Text style={styles.mainText}>Codigo - <Text>01</Text></Text>
-        <Text style={styles.mainText}>Doador - <Text>Fulano</Text></Text>
-        <Text style={styles.mainText}>Data - <Text>18/05/2022</Text></Text>
+        <Text style={styles.mainText}>Codigo - <Text>{getDoacao.id}</Text></Text>
+        <Text style={styles.mainText}>Doador - <Text>{getDoacao.nomeDoador}</Text></Text>
+        <Text style={styles.mainText}>Data - <Text>{dataFormatada}</Text></Text>
       </View>
 
       <View style={styles.scrollItens}>
@@ -77,10 +54,10 @@ export default function DetalhesDoacao({ navigation }) {
           Itens da Doação
         </Text>
         <ScrollView>
-          {list.map((l, i) => (
+          {listItens.map((l, i) => (
             <ListItem key={i} bottomDivider>
               <ListItem.Content>
-                <ListItem.Title>{l.name}</ListItem.Title>
+                <ListItem.Title>{l.nome}</ListItem.Title>
                 <ListItem.Subtitle>
                   Quantidade: {l.quantidade}
                 </ListItem.Subtitle>
@@ -90,7 +67,7 @@ export default function DetalhesDoacao({ navigation }) {
         </ScrollView>
         <View>
           <Text style={styles.footerText}>
-            Total de Itens - <Text style={styles.subText}>68</Text>
+            Total de Itens - <Text style={styles.subText}>{getDoacao.totalDeItens}</Text>
           </Text>
         </View>
       </View>

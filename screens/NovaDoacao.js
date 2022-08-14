@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import {
   Button,
@@ -8,58 +8,44 @@ import {
   ListItem,
   Divider,
 } from "react-native-elements";
+import axios from "axios";
 
 export default function NovaDoacao({ navigation }) {
-  let list = [
-    {
-      name: "Sabão",
-      quantidade: "10",
-    },
-    {
-      name: "Feijao",
-      quantidade: "10",
-    },
-    {
-      name: "Arroz",
-      quantidade: "10",
-    },
-    {
-      name: "Sabão",
-      quantidade: "10",
-    },
-    {
-      name: "Feijao",
-      quantidade: "10",
-    },
-    {
-      name: "Arroz",
-      quantidade: "10",
-    },
-    {
-      name: "Sabão",
-      quantidade: "10",
-    },
-    {
-      name: "Feijao",
-      quantidade: "10",
-    },
-    {
-      name: "Arroz",
-      quantidade: "10",
-    },
-    {
-      name: "Sabão",
-      quantidade: "10",
-    },
-    {
-      name: "Feijao",
-      quantidade: "10",
-    },
-    {
-      name: "Arroz",
-      quantidade: "10",
-    },
-  ];
+  const [getDoador, setDoador] = useState();
+  const [getNomeItem, setNomeItem] = useState();
+  const [getQuantidadeItem, setQuantidadeItem] = useState();
+  const [getListaItens, setListaItens] = useState([]);
+  const item = React.createRef();
+  const quantidade = React.createRef();
+
+
+  const adicionaItem = () =>{
+    getListaItens.push({
+      "nome": getNomeItem,
+      "quantidade": getQuantidadeItem
+    });
+
+    setNomeItem('')
+    setQuantidadeItem('')
+    item.current.clear()
+    quantidade.current.clear()
+
+  }
+
+  const cadastraDoacao = () =>{
+    const dataList = JSON.stringify({nomeDoador:getDoador, itens:getListaItens})
+    axios.post('http://192.168.0.106:8080/doacao/criar',dataList,{params: { id: global.sessionID }, headers:{'Content-Type': 'application/json'}})
+      .then(function (response) {
+        navigation.goBack();
+      })
+      .catch(function (error) {
+        console.log(error);
+        console.log('Doacao não cadastrada')
+      });
+  }
+
+
+
   return (
     <View style={styles.content}>
       <View style={styles.title}>
@@ -73,25 +59,26 @@ export default function NovaDoacao({ navigation }) {
         <Text h2>Nova Doação</Text>
       </View>
       <View style={styles.inputs}>
-        <Input placeholder="Doador" label={"Doador"} />
+        <Input placeholder="Doador" label={"Doador"} onChangeText={(text) => setDoador(text)} />
         <View style={styles.inputItens}>
-          <Input placeholder="Item" label={"Item"} />
-          <Input placeholder="Quantidade" label={"Quantidade"} />
+          <Input ref={item} placeholder="Item" label={"Item"}  onChangeText={(text) => setNomeItem(text)}/>
+          <Input ref={quantidade} placeholder="Quantidade" label={"Quantidade"} onChangeText={(text) => setQuantidadeItem(text)}/>
         </View>
           <View style={styles.AddButton}>
             <Button
               title="Adicionar Item"
               color="#1e90ff"
               buttonStyle={{ backgroundColor: "#00ff00" }}
+              onPress={() => adicionaItem()}
             />
           </View>
       </View>
       <View style={styles.scrollItens}>
         <ScrollView>
-          {list.map((l, i) => (
+          {getListaItens.map((l, i) => (
             <ListItem key={i} bottomDivider>
               <ListItem.Content>
-                <ListItem.Title>{l.name}</ListItem.Title>
+                <ListItem.Title>{l.nome}</ListItem.Title>
                 <ListItem.Subtitle>
                   Quantidade: {l.quantidade}
                 </ListItem.Subtitle>
@@ -102,7 +89,7 @@ export default function NovaDoacao({ navigation }) {
       </View>
 
       <View style={styles.buttons}>
-        <Button title="Finalizar Doação" color="#1e90ff" />
+        <Button title="Finalizar Doação" color="#1e90ff" onPress={() => cadastraDoacao()}/>
       </View>
     </View>
   );

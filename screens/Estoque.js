@@ -1,69 +1,42 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Text, ListItem } from "react-native-elements";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from "axios";
 
-export default function Estoque({ navigation }) {
-  let list = [
-    {
-      name: "Sabão",
-      quantidade: "10",
-    },
-    {
-      name: "Feijao",
-      quantidade: "10",
-    },
-    {
-      name: "Arroz",
-      quantidade: "10",
-    },
-    {
-      name: "Carne de Soja",
-      quantidade: "10",
-    },
-    {
-      name: "Macarrao",
-      quantidade: "10",
-    },
-    {
-      name: "Açucar",
-      quantidade: "10",
-    },
-    {
-      name: "Bolacha",
-      quantidade: "10",
-    },
-    {
-      name: "Sabonete",
-      quantidade: "10",
-    },
-    {
-      name: "Creme Dental",
-      quantidade: "10",
-    },
-    {
-      name: "Fubá",
-      quantidade: "10",
-    },
-    {
-      name: "Leite",
-      quantidade: "2",
-    },
-    {
-      name: "Grão de bico",
-      quantidade: "10",
-    },
-  ];
+export default function Estoque({ navigation, route }) {
+
+
+  const [getEstoque, setEstoque] = useState([]);
+
+
+  const consultarDadosEstoque = () => {
+
+    axios.get('http://192.168.0.106:8080/estoque/listar?', { params: { usuarioId: global.sessionID } })
+    .then(function (response) {
+      setEstoque(response.data);
+    }).catch(function (error) {
+        console.log(error);
+    
+    });
+}
+
+useEffect(()=>{
+  //chamada da função que synca os dados
+  if(global.sessionID != ""){
+    consultarDadosEstoque()
+  }
+},[getEstoque])
+
 
   return (
     <>
       <View style={styles.content}>
         <View>
           <ScrollView>
-            {list.map((l, i) => (
-              <ListItem key={i} bottomDivider>
+            {getEstoque.map((l, i) => (
+              <ListItem key={l.id} bottomDivider>
                 <ListItem.Content>
-                  <ListItem.Title>{l.name}</ListItem.Title>
+                  <ListItem.Title>{l.nome}</ListItem.Title>
                   <ListItem.Subtitle>Quantidade em estoque: {l.quantidade}</ListItem.Subtitle>
                 </ListItem.Content>
               </ListItem>
